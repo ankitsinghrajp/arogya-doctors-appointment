@@ -3,8 +3,11 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
+import { checkUser } from "@/lib/checkUser";
 
-const Header = () => {
+const Header = async () => {
+
+ const user = await checkUser();
 
   return (
     <header className="w-full border-b-2 border-white/20 fixed top-0 bg-[#212327]/90 supports-[backdrop:filter]:bg-[#212327]/60 backdrop-blue-md z-50">
