@@ -18,6 +18,13 @@ const Footer = () => {
                     <span className=" text-sm font-semibold my-2 text-gray-800 dark:text-gray-400">
                       Contact: ankitsinghchouhan682@gmail.com
                     </span>
+                    <div className='flex items-center gap-2'>
+                       <span className=' text-sm font-semibold my-2 text-gray-800 dark:text-gray-400'>Developer&apos;s Portfolio:</span>
+                       {" "} 
+                       <Link className='text-blue-500 underline italic font-bold text-xs hover:text-blue-700' href={'https://ankits-portfolio-omega.vercel.app/'}>
+                          Visit Website
+                       </Link>
+                    </div>
                     <span className="text-center  text-sm font-semibold flex gap-3 item-center my-2">
                       <Link href={"https://github.com/ankitsinghrajp"}>
                         <Image

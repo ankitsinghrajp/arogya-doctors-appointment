@@ -276,7 +276,7 @@ export default function HOME() {
                     className={"bg-blue-600 text-white hover:bg-blue-700"}
                     asChild
                   >
-                    <Link href={"/sign-up"}>Sign Up Now</Link>
+                    <Link href={"/sign-up"}>Start for free</Link>
                   </Button>
                   <Button
                     size={"lg"}
