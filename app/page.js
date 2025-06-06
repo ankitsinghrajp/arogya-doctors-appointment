@@ -2,7 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { creditBenefits, features, testimonials } from "@/lib/data";
-import { ArrowRight, Check, CheckCircleIcon, Quote, Stethoscope } from "lucide-react";
+import { PricingTable } from "@clerk/nextjs";
+import {
+  ArrowRight,
+  CheckCircleIcon,
+  Stethoscope,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -137,29 +142,53 @@ export default function HOME() {
 
           <div>
             {/* Pricing table would go here */}
-            <Card className={'mt-12 bg-muted/40 border-blue-900/30 shadow-md shadow-black/20'}>
+            <Card
+              className={
+                "border-blue-900/30 shadow-lg bg-gradient-to-b from bg-blue-950/30 to-transparent"
+              }
+            >
+              <CardContent className={"p-6 md:p-8"}>
+                <PricingTable checkoutProps={{
+                  appearance:{
+                    elements:{
+                      drawerRoot: {
+                        zIndex: 200
+                      }
+                    }
+                  }
+                }} />
+              </CardContent>
+            </Card>
+
+            <Card
+              className={
+                "mt-12 bg-muted/40 border-blue-900/30 shadow-md shadow-black/20"
+              }
+            >
               <CardHeader>
-                <CardTitle className={'text-xl font-semibold text-white flex items-center'}>
-                  <Stethoscope className="h-5 w-5 mr-2 text-blue-400"/>
+                <CardTitle
+                  className={
+                    "text-xl font-semibold text-white flex items-center"
+                  }
+                >
+                  <Stethoscope className="h-5 w-5 mr-2 text-blue-400" />
                   How Our Credit System Works?
-                  </CardTitle>
-               
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {creditBenefits.map((benefit,index)=>{
-                     return (
+                  {creditBenefits.map((benefit, index) => {
+                    return (
                       <li key={index} className="flex items-start">
                         <div className="flex items-center gap-3">
-                          <CheckCircleIcon className="h-6 w-6 text-blue-400 bg-blue-900/50 p-1 rounded-full"/>
-                          <p className="text-muted-foreground"
-                            dangerouslySetInnerHTML={{__html: benefit}}
+                          <CheckCircleIcon className="h-6 w-6 text-blue-400 bg-blue-900/50 p-1 rounded-full" />
+                          <p
+                            className="text-muted-foreground"
+                            dangerouslySetInnerHTML={{ __html: benefit }}
                           />
                         </div>
                       </li>
-                     )
-
-
+                    );
                   })}
                 </ul>
               </CardContent>
@@ -168,14 +197,16 @@ export default function HOME() {
         </div>
       </section>
 
-            <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge
-            variant={'outline'}
-            className={'bg-blue-900/30 border-blue-700/30 px-4 py-2 text-blue-400 text-sm font-medium mb-4'}
+              variant={"outline"}
+              className={
+                "bg-blue-900/30 border-blue-700/30 px-4 py-2 text-blue-400 text-sm font-medium mb-4"
+              }
             >
-                 Success Stories
+              Success Stories
             </Badge>
             <h2 className="text-3xl text-shadow-md text-shadow-gray-900 font-bold md:text-4xl lg:text-5xl text-white mb-4">
               What Our Users Say?
@@ -193,22 +224,26 @@ export default function HOME() {
                     "bg-[#292a2d] border-2 cursor-pointer border-blue-900/20 hover:border-blue-800/40 transition-all duration-300  shadow-md shadow-black/20"
                   }
                 >
-                <CardContent>
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-900/20 flex items-center justify-center mr-4">
-                      <span className="text-blue-400 font-bold">
-                        {testimonial.initials}
-                      </span>
+                  <CardContent>
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 rounded-full bg-blue-900/20 flex items-center justify-center mr-4">
+                        <span className="text-blue-400 font-bold">
+                          {testimonial.initials}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-white">
+                          {testimonial.name}
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          {testimonial.role}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-white">{testimonial.name}</h4>
-                      <p className="text-muted-foreground text-sm">{testimonial.role}</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground">
-                    &quot;{testimonial.quote}&quot;
-                  </p>
-                </CardContent>
+                    <p className="text-muted-foreground">
+                      &quot;{testimonial.quote}&quot;
+                    </p>
+                  </CardContent>
                 </Card>
               );
             })}
@@ -216,45 +251,45 @@ export default function HOME() {
         </div>
       </section>
 
-          <section className="py-20">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <Card
-          className={'bg-gradient-to-r from-blue-900/30 to-blue-950/20 border-blue-800/20 '}
+            className={
+              "bg-gradient-to-r from-blue-900/30 to-blue-950/20 border-blue-800/20 "
+            }
           >
-             <CardContent className={'pt-8 md:p-12 lg:p-16 relative overflow-hidden'}>
-                  <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                      Take Charge Of Your Wellbeing Now?
-                    </h2>
-                    <p className="text-lg text-muted-foreground mb-8">
-                        Join thousands who’ve transformed their healthcare journey with ease. Start today and experience care the way it’s meant to be.
-                    </p>
-                   <div className="flex gap-4 flex-row">
-                    <Button 
-                    size={'lg'}
-                    className={'bg-blue-600 text-white hover:bg-blue-700'}
-                     asChild
-                     >
-                        <Link href={'/sign-up'}>
-                              Sign Up Now
-                        </Link>
-                    </Button>
-                    <Button 
-                    size={'lg'}
-                    className={'border-blue-700/30 hover:bg-muted'}
-                    variant={'outline'}
-                     asChild
-                     >
-                        <Link href={'/sign-up'}>
-                              View Pricing
-                        </Link>
-                    </Button>
-                   </div>
-                  </div>
-             </CardContent>
+            <CardContent
+              className={"pt-8 md:p-12 lg:p-16 relative overflow-hidden"}
+            >
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                  Take Charge Of Your Wellbeing Now?
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Join thousands who&apos;ve transformed their healthcare
+                  journey with ease. Start today and experience care the way
+                  it&apos;s meant to be.
+                </p>
+                <div className="flex gap-4 flex-row">
+                  <Button
+                    size={"lg"}
+                    className={"bg-blue-600 text-white hover:bg-blue-700"}
+                    asChild
+                  >
+                    <Link href={"/sign-up"}>Sign Up Now</Link>
+                  </Button>
+                  <Button
+                    size={"lg"}
+                    className={"border-blue-700/30 hover:bg-muted"}
+                    variant={"outline"}
+                    asChild
+                  >
+                    <Link href={"/pricing"}>View Pricing</Link>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
           </Card>
-              
-          
         </div>
       </section>
     </div>
