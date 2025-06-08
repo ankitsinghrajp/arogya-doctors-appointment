@@ -26,9 +26,9 @@ const PageHeader = ({
               {icon && (
                 <div className='text-blue-400 flex items-center gap-2'>
                     {React.cloneElement(icon,{
-                        className: "h-8 md:h-14 w-8 md:w-14",
+                        className: "h-8 md:h-12 w-8 md:w-12",
                     })}
-                  <h1 className='text-3xl font-extrabold md:text-5xl text-transparent bg-clip-text pr-2 bg-gradient-to-b from-blue-500  to-blue-600'>{title}</h1>
+                  <h1 className='text-3xl font-extrabold md:text-5xl text-transparent bg-clip-text pr-2 bg-gradient-to-b pb-2 from-blue-500  to-blue-600'>{title.replace("%26","&")}</h1>
                 </div>
               )}
         </div>

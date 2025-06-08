@@ -30,7 +30,7 @@ const Header = async () => {
               <SignedIn>
 
                    {user?.role === "ADMIN" && (
-                  <Link className="cursor-pointer" href={"/doctor"} >
+                  <Link className="cursor-pointer" href={"/admin"} >
                     <Button
                     variant={'outline'}
                     className={'hidden md:inline-flex items-center gap-2'}
