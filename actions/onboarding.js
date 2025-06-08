@@ -41,7 +41,7 @@ export async function setUserRole(formData){
             });
 
             revalidatePath("/");
-            return {success:true, redirect: "/doctors"};
+            return {success: true, redirect: "/doctors"};
         }
 
         if(role === "DOCTOR"){
@@ -64,7 +64,7 @@ export async function setUserRole(formData){
                     experience,
                     credentialUrl,
                     description,
-                    VerificationStatus: "PENDING",
+                    verificationStatus: "PENDING",
                 },
             });
 
@@ -74,7 +74,9 @@ export async function setUserRole(formData){
         }
         
       } catch (error) {
+         console.log("This is the error",error);
           throw new Error("failed to update user profile!");
+         
       }
 } 
 
