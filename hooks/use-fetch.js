@@ -14,7 +14,7 @@ const useFetch = (cb) => {
       const response = await cb(...args);
       setData(response);
       setError(null);
-      return data;
+      return response;
 
     } catch (error) {
       setError(error);
