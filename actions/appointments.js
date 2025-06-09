@@ -16,9 +16,7 @@ const credentials = new Auth({
 const options = {};
 const vonage = new Vonage(credentials, options);
 
-/**
- * Book a new appointment with a doctor
- */
+
 export async function bookAppointment(formData) {
   const { userId } = await auth();
 
@@ -143,9 +141,6 @@ export async function bookAppointment(formData) {
   }
 }
 
-/**
- * Generate a Vonage Video API session
- */
 async function createVideoSession() {
   try {
     const session = await vonage.video.createSession({ mediaMode: "routed" });
@@ -155,10 +150,7 @@ async function createVideoSession() {
   }
 }
 
-/**
- * Generate a token for a video session
- * This will be called when either doctor or patient is about to join the call
- */
+
 export async function generateVideoToken(formData) {
   const { userId } = await auth();
 
@@ -256,9 +248,7 @@ export async function generateVideoToken(formData) {
   }
 }
 
-/**
- * Get doctor by ID
- */
+
 export async function getDoctorById(doctorId) {
   try {
     const doctor = await db.user.findUnique({
@@ -280,9 +270,7 @@ export async function getDoctorById(doctorId) {
   }
 }
 
-/**
- * Get available time slots for booking for the next 4 days
- */
+
 export async function getAvailableTimeSlots(doctorId) {
   try {
     // Validate doctor existence and verification

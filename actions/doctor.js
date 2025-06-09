@@ -104,5 +104,248 @@ export async function getDoctorAvailability(){
 }
 
 export async function getDoctorAppointments(){
-    return [];
+    const {userId} = await auth();
+    if(!userId) throw new Error("User not found!");
+
+    try {
+        const doctor = await db.user.findUnique({
+            where:{
+                clerkUserId: userId,
+                role: "DOCTOR",
+            },
+        });
+
+        if(!doctor) throw new Error("User not found!");
+
+        const appointments = await db.appointment.findMany({
+            where:{
+                doctorId: doctor.id,
+                status: {
+                    in: ["SCHEDULED"],
+                },
+            },
+            include:{
+                patient: true,
+            },
+            orderBy:{
+                startTime: "asc",
+            },
+        });
+
+    return appointments;
+
+    } catch (error) {
+        throw new Error("Failed to fetch appointments: "+error.message);
+    }
+}
+
+export async function cancelAppointment(formData){
+     const {userId} = await auth();
+     if(!userId) throw new Error("Unauthorized!");
+
+     try {
+
+        const user = await db.user.findUnique({
+            where:{
+                clerkUserId: userId,
+            },
+        });
+
+        if(!user){
+            throw new Error("User not found!");
+        }
+        
+        const appointmentId = formData.get("appointmentId");
+        if(!appointmentId) throw new Error("Appointment ID is required!");
+
+        const appointment = await db.appointment.findUnique({
+            where:{
+                id: appointmentId,
+            },
+            include:{
+                patient: true,
+                doctor: true,
+            },
+        });
+
+        if(!appointment) throw new Error("Appointment not found!");
+
+        if(appointment.doctorId !== user.id && appointmentId.patientId !== user.id){
+            throw new Error("You are not authorized to cancel this appointment!");
+        }
+
+        await db.$transaction(async tx=>{
+            await tx.appointment.update({
+                where:{
+                    id: appointmentId,
+                },
+                data: {
+                    status: "CANCELLED",
+                }
+            });
+
+            await tx.creditTransaction.create({
+                data:{
+                    userId: appointment.patientId,
+                    amount: 2,
+                    type: "APPOINTMENT_DEDUCTION",
+                }
+            });
+
+            await tx.creditTransaction.create({
+                data:{
+                    userId: appointment.doctorId,
+                    amount: -2,
+                    type: "APPOINTMENT DEDUCTION",
+                },
+            });
+
+            // Update doctors credit balance
+            await tx.user.update({
+                where:{
+                    id: appointment.doctorId,
+                },
+                data:{
+                    credits:{
+                        decrement: 2,
+                    },
+                },
+            });
+
+
+            // Update user credit balance
+
+            await tx.user.update({
+                where:{
+                    id: appointment.patientId,
+                },
+                data:{
+                    credits: {
+                        increment: 2,
+                    },
+                },
+            });
+        });
+
+        if(user.role === "DOCTOR"){
+            revalidatePath("/doctor");
+        } else if(user.role === "PATIENT"){
+            revalidatePath("/appointments");
+        }
+
+        return {success:true};
+     } catch (error) {
+         throw new Error("Failed to cancel Appointment...")
+     }
+}
+
+export async function addAppointmentNotes(formData){
+    const {userId} = await auth();
+    if(!userId) throw new Error("User not found!");
+
+    try {
+        const doctor = await db.user.findUnique({
+            where:{
+                clerkUserId: userId,
+                role: "DOCTOR",
+            },
+        });
+
+        if(!doctor) throw new Error("User not found!");
+ 
+
+        const appointmentId = formData.get("appointmentId");
+        const notes = formData.get("notes");
+
+        const appointment = await db.appointment.findUnique({
+            where:{
+                id: appointmentId,
+                doctorId: doctor.id,
+            },
+        });
+
+        if(!appointment){
+            throw new Error("Appointment not found!");
+        }
+        
+        const updatedAppointment = await db.appointment.update({
+            where:{
+                id: appointmentId,
+            },
+            data:{
+                notes,
+            },
+        });
+
+        revalidatePath("/doctor");
+
+        return {success:true,appointment: updatedAppointment};
+
+    } catch (error) {
+        throw new Error("Failed to update notes: "+ error.message);
+    }
+}
+
+export async function markAppointmentCompleted(formData){
+    const {userId} = await auth();
+    if(!userId) throw new Error("User not found!");
+
+    try {
+        const doctor = await db.user.findUnique({
+            where:{
+                clerkUserId: userId,
+                role: "DOCTOR",
+            },
+        });
+
+        if(!doctor) throw new Error("User not found!");
+ 
+
+        const appointmentId = formData.get("appointmentId");
+        
+        if(!appointmentId) throw new Error("Appointment Id not found!");
+
+
+        const appointment = await db.appointment.findUnique({
+            where:{
+                id: appointmentId,
+                doctorId: doctor.id,
+            },
+            include:{
+                patient: true,
+            }
+        });
+
+        if(!appointment){
+            throw new Error("Appointment not found!");
+        }
+
+        if(appointment.status !== "SCHEDULED"){
+            throw new Error("Only scheduled appointment can be marked as completed!");
+        }
+        
+        
+        const now = new Date();
+        const appointmentEndTime = new Date(appointment.endTime);
+
+        if(now < appointmentEndTime){
+            throw new Error("Cannot mark appointment as completed before the scheduled end time");
+        }
+
+        const updatedAppointment = await db.appointment.update({
+            where:{
+                id: appointmentId,
+            },
+            data:{
+                status:"COMPLETED",
+            },
+        });
+
+
+        revalidatePath("/doctor");
+        return {success: true, appointment: updatedAppointment};
+
+    } catch (error) {
+        throw new Error("Failed to update notes: "+ error.message);
+    }
 }
