@@ -215,7 +215,7 @@ const VideoCall = ({sessionId,token}) => {
         (
             <div className='space-y-6'>
                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                    <div className='border border-blue-900/20 shadow-md shadow-black/60 rounded-lg overflow-hidden '>
+                    <div className='border h-[300px] md:h-[400px] border-blue-900/20 shadow-md shadow-black/60 rounded-lg overflow-hidden '>
 
                      <div className='bg-blue-900/10 px-3 py-2 text-blue-400 text-sm font-medium'>
                                You
@@ -233,7 +233,7 @@ const VideoCall = ({sessionId,token}) => {
                      </div>
 
                     </div>
-                    <div className='border border-blue-900/20 rounded-lg overflow-hidden '>
+                    <div className='border h-[300px] md:h-[400px] border-blue-900/20 rounded-lg overflow-hidden '>
                          <div className='bg-blue-900/10 px-3 py-2 text-blue-400 text-sm font-medium'>
                          Other Participants
                          </div>
