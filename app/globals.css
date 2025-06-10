@@ -141,3 +141,24 @@
 }
 
 
+
+/* In globals.css or a CSS module */
+@keyframes dots {
+  0% {
+    content: '';
+  }
+  33% {
+    content: '.';
+  }
+  66% {
+    content: '..';
+  }
+  100% {
+    content: '...';
+  }
+}
+
+.dot-animate::after {
+  content: '';
+  animation: dots 1s steps(3, end) infinite;
+}

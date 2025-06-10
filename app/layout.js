@@ -6,6 +6,7 @@ import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
 import { Toaster } from "sonner";
+import RouteLoader from "@/components/route-loader";
 const inter = Inter({
   subsets: ["latin"],
 });
@@ -31,12 +32,14 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
+          <RouteLoader>
           {/* header  */}
           <Header/>
 
           <main className="min-h-screen">{children}</main>
           <Toaster richColors/>
          <Footer/>
+         </RouteLoader>
          
         </ThemeProvider>
       </body>
