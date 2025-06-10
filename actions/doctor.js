@@ -139,104 +139,118 @@ export async function getDoctorAppointments(){
     }
 }
 
-export async function cancelAppointment(formData){
-     const {userId} = await auth();
-     if(!userId) throw new Error("Unauthorized!");
+export async function cancelAppointment(formData) {
+  const { userId } = await auth();
 
-     try {
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
 
-        const user = await db.user.findUnique({
-            where:{
-                clerkUserId: userId,
-            },
-        });
+  try {
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
 
-        if(!user){
-            throw new Error("User not found!");
-        }
-        
-        const appointmentId = formData.get("appointmentId");
-        if(!appointmentId) throw new Error("Appointment ID is required!");
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-        const appointment = await db.appointment.findUnique({
-            where:{
-                id: appointmentId,
-            },
-            include:{
-                patient: true,
-                doctor: true,
-            },
-        });
+    const appointmentId = formData.get("appointmentId");
 
-        if(!appointment) throw new Error("Appointment not found!");
+    if (!appointmentId) {
+      throw new Error("Appointment ID is required");
+    }
 
-        if(appointment.doctorId !== user.id && appointmentId.patientId !== user.id){
-            throw new Error("You are not authorized to cancel this appointment!");
-        }
+    // Find the appointment with both patient and doctor details
+    const appointment = await db.appointment.findUnique({
+      where: {
+        id: appointmentId,
+      },
+      include: {
+        patient: true,
+        doctor: true,
+      },
+    });
 
-        await db.$transaction(async tx=>{
-            await tx.appointment.update({
-                where:{
-                    id: appointmentId,
-                },
-                data: {
-                    status: "CANCELLED",
-                }
-            });
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
 
-            await tx.creditTransaction.create({
-                data:{
-                    userId: appointment.patientId,
-                    amount: 2,
-                    type: "APPOINTMENT_DEDUCTION",
-                }
-            });
+    // Verify the user is either the doctor or the patient for this appointment
+    if (appointment.doctorId !== user.id && appointment.patientId !== user.id) {
+      throw new Error("You are not authorized to cancel this appointment");
+    }
 
-            await tx.creditTransaction.create({
-                data:{
-                    userId: appointment.doctorId,
-                    amount: -2,
-                    type: "APPOINTMENT DEDUCTION",
-                },
-            });
+    // Perform cancellation in a transaction
+    await db.$transaction(async (tx) => {
+      // Update the appointment status to CANCELLED
+      await tx.appointment.update({
+        where: {
+          id: appointmentId,
+        },
+        data: {
+          status: "CANCELLED",
+        },
+      });
 
-            // Update doctors credit balance
-            await tx.user.update({
-                where:{
-                    id: appointment.doctorId,
-                },
-                data:{
-                    credits:{
-                        decrement: 2,
-                    },
-                },
-            });
+      // Always refund credits to patient and deduct from doctor
+      // Create credit transaction for patient (refund)
+      await tx.creditTransaction.create({
+        data: {
+          userId: appointment.patientId,
+          amount: 2,
+          type: "APPOINTMENT_DEDUCTION",
+        },
+      });
 
+      // Create credit transaction for doctor (deduction)
+      await tx.creditTransaction.create({
+        data: {
+          userId: appointment.doctorId,
+          amount: -2,
+          type: "APPOINTMENT_DEDUCTION",
+        },
+      });
 
-            // Update user credit balance
+      // Update patient's credit balance (increment)
+      await tx.user.update({
+        where: {
+          id: appointment.patientId,
+        },
+        data: {
+          credits: {
+            increment: 2,
+          },
+        },
+      });
 
-            await tx.user.update({
-                where:{
-                    id: appointment.patientId,
-                },
-                data:{
-                    credits: {
-                        increment: 2,
-                    },
-                },
-            });
-        });
+      // Update doctor's credit balance (decrement)
+      await tx.user.update({
+        where: {
+          id: appointment.doctorId,
+        },
+        data: {
+          credits: {
+            decrement: 2,
+          },
+        },
+      });
+    });
 
-        if(user.role === "DOCTOR"){
-            revalidatePath("/doctor");
-        } else if(user.role === "PATIENT"){
-            revalidatePath("/appointments");
-        }
+    // Determine which path to revalidate based on user role
+    if (user.role === "DOCTOR") {
+      revalidatePath("/doctor");
+    } else if (user.role === "PATIENT") {
+      revalidatePath("/appointments");
+    }
 
-        return {success:true};
-     } catch (error) {
-         throw new Error("Failed to cancel Appointment...")
-     }
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to cancel appointment:", error);
+    throw new Error("Failed to cancel appointment: " + error.message);
+  }
 }
 
 export async function addAppointmentNotes(formData){

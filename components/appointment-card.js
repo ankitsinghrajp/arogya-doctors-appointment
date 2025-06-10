@@ -44,7 +44,7 @@ const AppointmentCard = ({ appointment, userRole }) => {
 
   const {
     loading: cancelLoading,
-    fn: cancelFn,
+    fn: submitCancel,
     data: cancelData,
   } = useFetch(cancelAppointment);
 
